@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 6th Anniversary, My Love! ❤️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti for Celebration Effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit (Clean, highly legible non-italic sans-serifs) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rose-accent': '#e63946',
+                        'rose-soft': '#ffb3c1',
+                        'rose-light': '#fff0f3',
+                        'rose-deep': '#800f2f',
+                        'rose-dark': '#590d22',
+                        'cream-bg': '#fffaf7',
+                    },
+                    fontFamily: {
+                        'sans': ['Plus Jakarta Sans', 'sans-serif'],
+                        'display': ['Outfit', 'sans-serif'],
+                    },
+                    keyframes: {
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%, 60%': { transform: 'translateX(-8px)' },
+                            '40%, 80%': { transform: 'translateX(8px)' },
+                        }
+                    },
+                    animation: {
+                        shake: 'shake 0.4s ease-in-out',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base page styling */
+        body {
+            background-color: #fffaf7;
+            background-image: 
+                radial-gradient(#ffccd5 1.5px, transparent 1.5px), 
+                radial-gradient(#ffccd5 1.5px, #fffaf7 1.5px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            color: #590d22;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+
+        /* STRICTLY NO ITALICS SITE-WIDE */
+        *, ::before, ::after {
+            font-style: normal !important;
+        }
+
+        /* Canvas background overlay for floating hearts */
+        #heartCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 179, 193, 0.7);
+        }
+
+        .polaroid-frame {
+            box-shadow: 0 10px 25px -5px rgba(128, 15, 47, 0.12), 0 8px 10px -6px rgba(128, 15, 47, 0.08);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .polaroid-frame:hover {
+            transform: translateY(-6px) scale(1.03) !important;
+            z-index: 20;
+            box-shadow: 0 20px 30px -10px rgba(128, 15, 47, 0.2);
+        }
+
+        .pin-circle {
+            transition: all 0.2s ease;
+        }
+        .pin-circle.filled {
+            background-color: #e63946;
+            border-color: #800f2f;
+            transform: scale(1.1);
+            box-shadow: 0 0 12px rgba(230, 57, 70, 0.5);
+        }
+
+        .modal-backdrop {
+            background: rgba(89, 13, 34, 0.65);
+            backdrop-filter: blur(6px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff0f3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb3c1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #e63946;
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans flex flex-col justify-between relative selection:bg-rose-soft selection:text-rose-dark">
+
+    <!-- CANVAS FOR FLOATING PIXELATED HEARTS -->
+    <canvas id="heartCanvas"></canvas>
+
+    <!-- AUDIO CONTROLLER TOGGLE -->
+    <header class="fixed top-3 right-3 z-50 flex gap-2">
+        <!-- <button id="musicToggleBtn" onclick="toggleAudio()" class="bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full shadow-lg border-2 border-rose-soft text-rose-accent hover:bg-rose-light transition transform hover:scale-105 flex items-center gap-2 text-xs font-display font-bold">
+            <i id="musicIcon" class="fas fa-music text-sm"></i>
+            <span id="musicText" class="hidden sm:inline">Play Music</span>
+        </button> -->
+        <audio id="bgAudio" loop preload="auto">
+            <source src="https://assets.mixkit.co/music/preview/mixkit-romantic-sunset-688.mp3" type="audio/mpeg">
+        </audio>
+    </header>
+
+    <!-- MAIN INTERACTIVE WRAPPER -->
+    <main class="flex-grow flex items-center justify-center p-3 sm:p-6 w-full max-w-4xl mx-auto z-10 my-auto">
+
+        <!-- ================= 1. PASSCODE LOCK SCREEN ================= -->
+        <section id="passcodeView" class="w-full transition-all duration-500 ease-in-out my-auto">
+            <div class="glass-panel rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden">
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    
+                    <!-- Left Column: Couple Photo Badge -->
+                    <div class="md:col-span-5 flex flex-col items-center text-center">
+                        <div class="relative w-full max-w-xs p-3 bg-rose-light rounded-3xl border-2 border-rose-soft">
+                            <div class="relative aspect-square w-full rounded-2xl overflow-hidden border-4 border-white shadow-md bg-white flex items-center justify-center">
+                                <img src="images/cat.png" 
+                                     alt="Anniversary Photo" 
+                                     class="w-full h-full object-cover"
+                                     onerror="this.src='https://placehold.co/600x600/ffb3c1/800f2f?text=6+Years+Together'">
+                                
+                                <div class="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-display text-rose-accent font-bold shadow-sm flex items-center gap-1.5">
+                                    <i class="fas fa-heart"></i>
+                                    <span>6 Years Today</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h3 class="font-display text-xl text-rose-dark font-bold">10 · 27 · 2020</h3>
+                                <!-- <p class="text-xs text-rose-deep/70 font-semibold mt-0.5">Enter our 4-digit passcode</p> -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Keypad Entry -->
+                    <div class="md:col-span-7 flex flex-col items-center">
+                        <div class="w-full max-w-xs text-center">
+                            
+                            <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-light text-rose-accent text-xs font-display font-bold rounded-full mb-2 border border-rose-soft">
+                                <i class="fas fa-lock text-xs"></i>
+                                <span>Private Anniversary Card</span>
+                            </div>
+
+                            <h1 class="text-2xl sm:text-3xl font-display font-extrabold text-rose-dark mb-1">Enter Passcode</h1>
+
+                            <!-- PIN Indicator Circles -->
+                            <div id="pinContainer" class="flex justify-center gap-3 mb-6">
+                                <div class="pin-circle w-11 h-11 rounded-2xl border-2 border-rose-soft bg-white flex items-center justify-center text-xl font-bold text-rose-accent shadow-sm"></div>
+                                <div class="pin-circle w-11 h-11 rounded-2xl border-2 border-rose-soft bg-white flex items-center justify-center text-xl font-bold text-rose-accent shadow-sm"></div>
+                                <div class="pin-circle w-11 h-11 rounded-2xl border-2 border-rose-soft bg-white flex items-center justify-center text-xl font-bold text-rose-accent shadow-sm"></div>
+                                <div class="pin-circle w-11 h-11 rounded-2xl border-2 border-rose-soft bg-white flex items-center justify-center text-xl font-bold text-rose-accent shadow-sm"></div>
+                            </div>
+
+                            <!-- Keypad Buttons -->
+                            <div class="grid grid-cols-3 gap-2.5 mb-4">
+                                <button onclick="pressNum('1')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">1</button>
+                                <button onclick="pressNum('2')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">2</button>
+                                <button onclick="pressNum('3')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">3</button>
+                                <button onclick="pressNum('4')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">4</button>
+                                <button onclick="pressNum('5')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">5</button>
+                                <button onclick="pressNum('6')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">6</button>
+                                <button onclick="pressNum('7')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">7</button>
+                                <button onclick="pressNum('8')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">8</button>
+                                <button onclick="pressNum('9')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">9</button>
+                                <button onclick="clearPin()" class="h-12 rounded-2xl bg-rose-light hover:bg-rose-soft text-rose-deep font-display text-xs font-extrabold tracking-wider shadow-sm active:scale-95 transition border border-rose-soft">CLEAR</button>
+                                <button onclick="pressNum('0')" class="h-12 rounded-2xl bg-white hover:bg-rose-light text-rose-dark font-display text-xl font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">0</button>
+                                <button onclick="pressBackspace()" class="h-12 rounded-2xl bg-rose-light hover:bg-rose-soft text-rose-accent font-display text-base font-bold shadow-sm active:scale-95 transition border border-rose-soft flex items-center justify-center">
+                                    <i class="fas fa-backspace"></i>
+                                </button>
+                            </div>
+
+                            <button onclick="submitPin()" class="w-full py-3.5 rounded-2xl bg-rose-accent hover:bg-rose-deep text-white font-display text-base font-bold shadow-lg active:scale-95 transition flex items-center justify-center gap-2">
+                                <span>UNLOCK CARD</span>
+                                <i class="fas fa-heart"></i>
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 2. INCORRECT PASSCODE SCREEN ================= -->
+        <section id="wrongPasscodeView" class="hidden w-full transition-all duration-500 ease-in-out my-auto">
+            <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl border-2 border-rose-accent text-center max-w-md mx-auto relative overflow-hidden">
+                <div class="animate-shake">
+                    
+                    <div class="w-24 h-24 mx-auto mb-4 relative flex items-center justify-center bg-rose-light rounded-full border-2 border-rose-soft text-rose-accent shadow-inner">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='48' height='48'><path fill='%23e63946' d='M1 1h2v1H1zm4 0h2v1H5zM0 2h4v1H0zm4 0h4v1H4zM0 3h3v1H0zm5 0h3v1H5zM1 4h2v1H1zm4 0h2v1H5zM2 5h1v1H2zm3 0h1v1H3zM3 6h2v1H3z'/></svg>" alt="Broken Pixel Heart" class="w-12 h-12">
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-rose-accent mb-1">
+                        WRONG PASSCODE
+                    </h2>
+                    <p class="text-rose-dark text-sm font-semibold mb-4">
+                        That is not our anniversary passcode!
+                    </p>
+
+                    <div class="bg-white p-4 rounded-2xl border border-rose-soft mb-6 text-center shadow-sm">
+                        <p class="font-display text-base text-rose-deep font-bold">
+                            Hint: ALAMIN MO
+                        </p>
+                    </div>
+
+                    <button onclick="resetToPasscodeView()" class="w-full py-3.5 rounded-2xl bg-rose-accent hover:bg-rose-deep text-white font-display text-base font-bold shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fas fa-redo-alt"></i>
+                        <span>TRY AGAIN</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 3. GIFT SURPRISE BOX ================= -->
+        <section id="giftView" class="hidden w-full transition-all duration-500 ease-in-out my-auto">
+            <div class="glass-panel rounded-3xl p-8 sm:p-10 shadow-2xl text-center max-w-md mx-auto relative overflow-hidden">
+                
+                <span class="inline-block px-3.5 py-1 bg-emerald-100 text-emerald-800 font-display font-bold rounded-full text-xs mb-3 border border-emerald-200">
+                    Passcode Unlocked!
+                </span>
+
+                <h2 class="text-3xl font-display font-extrabold text-rose-dark mb-2">
+                    I made something for you
+                </h2>
+                <p class="text-rose-deep/80 text-sm mb-6 font-medium">Click the heart</p>
+
+                <!-- Interactive Gift Box -->
+                <div onclick="openGiftSurprise()" class="cursor-pointer group relative inline-block my-2">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-rose-soft via-rose-accent to-rose-soft rounded-full blur-md opacity-70 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+                    
+                    <div id="giftBoxGraphic" class="relative bg-white p-8 rounded-3xl border-2 border-rose-soft shadow-2xl transform transition group-hover:scale-105 duration-300 flex flex-col items-center">
+                        <div class="text-7xl mb-2 text-rose-accent">
+                            <!-- 🎁 -->
+                             <i class="fas fa-heart"></i>
+                        </div>
+                        
+
+                        <!-- <div class="mb-2 flex justify-center">
+                        <img
+                            src="https://gallery.yopriceville.com/var/resizes/Free-Clipart-Pictures/Gifts-and-Chocolates-PNG-/Cute_Pink_Gift_Box_Transparent_PNG_Clip_Art_Image.png?m=1629832018"
+                            alt="Cute pink anniversary gift"
+                            width="128"
+                            height="128"
+                            style="object-fit: contain; image-rendering: pixelated;"
+                        >
+                        </div> -->
+
+
+                        <div class="px-4 py-1.5 bg-rose-light rounded-full text-rose-accent font-display font-bold text-xs border border-rose-soft flex items-center gap-1.5">
+                           <i class="fas fa-heart"></i>
+                            <span>Click to open</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <p class="text-xs text-rose-dark/60 font-semibold mt-6">Happy 6th Anniversary Mahal <i class="fas fa-heart"></i></p> -->
+            </div>
+        </section>
+
+        <!-- ================= 4. MAIN ANNIVERSARY SCRAPBOOK ================= -->
+        <section id="scrapbookView" class="hidden w-full transition-all duration-700 ease-in-out my-auto">
+            <div class="space-y-8 py-4">
+
+                <!-- BANNER -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-xl text-center relative overflow-hidden bg-gradient-to-br from-rose-accent via-rose-deep to-rose-dark text-white">
+                    <div class="bg-white/10 backdrop-blur-md p-6 sm:p-8 rounded-3xl border border-white/20 max-w-2xl mx-auto shadow-2xl">
+                        <!-- <span class="text-rose-soft uppercase tracking-widest text-xs font-display font-bold">6 Years Together</span> -->
+                        <h1 class="text-3xl sm:text-5xl font-display font-extrabold text-white my-2 tracking-tight">
+                            Happy 6th Anniversary!
+                        </h1>
+                        <!-- <p class="text-base sm:text-lg text-white/90 font-medium">
+                            October 27, 2020 – October 27, 2026
+                        </p> -->
+                        
+                        <div class="mt-4 inline-flex items-center gap-2 bg-white/20 px-4 py-1.5 rounded-full text-xs font-display font-bold text-white border border-white/30">
+                            <i class="fas fa-heart"></i>
+                            <span>2,192 Days of Love & Happiness</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CALENDAR MILESTONE -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-5 text-center md:text-left">
+                            <span class="px-3 py-1 bg-rose-light text-rose-accent font-display font-bold text-xs rounded-full uppercase">Our Milestone</span>
+                            <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-rose-dark mt-2 mb-2">
+                                The Day It Became Official
+                            </h2>
+                            <p class="text-rose-deep/80 text-sm font-medium mb-4">
+                                October 27, 2020 was the start of our journey together.
+
+                                Naglalakad pa tayo nung tinanong mo ako, kasama sina Tabs at Ricky, hinahatid nyo ata ako non no? HAHAHAHAHAHA. Kinilig leeee. HAHAHAHAH. Anim na taon na nga naman e. More years sa atin mahal. Mwuapps
+                            </p>
+                            
+                        </div>
+
+                        <!-- October Calendar Grid -->
+                        <div class="md:col-span-7 bg-white p-5 rounded-3xl border border-rose-soft shadow-inner">
+                            <div class="flex justify-between items-center mb-4 pb-2 border-b border-rose-light">
+                                <h3 class="font-display font-bold text-lg text-rose-dark flex items-center gap-2">
+                                    <i class="fas fa-calendar-alt text-rose-accent"></i>
+                                    <span>October 2020</span>
+                                </h3>
+                                <span class="text-xs text-rose-accent font-bold bg-rose-light px-2.5 py-1 rounded-full flex items-center gap-1">
+                                    <i class="fas fa-heart"></i>
+                                    6 Years Today
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-7 gap-1 text-center font-display font-bold text-xs text-rose-deep/60 mb-2">
+                                <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                            </div>
+
+                            <div class="grid grid-cols-7 gap-1.5 text-center font-sans text-xs">
+                                <div class="p-2 text-gray-300">27</div>
+                                <div class="p-2 text-gray-300">28</div>
+                                <div class="p-2 text-gray-300">29</div>
+                                <div class="p-2 text-gray-300">30</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">1</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">2</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">3</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">4</div>
+
+                                <div class="p-2 hover:bg-rose-light rounded-lg">5</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">6</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">7</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">8</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">9</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">10</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">11</div>
+
+                                <div class="p-2 hover:bg-rose-light rounded-lg">12</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">13</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">14</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">15</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">16</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">17</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">18</div>
+
+                                <div class="p-2 hover:bg-rose-light rounded-lg">19</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">20</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">21</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">22</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">23</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">24</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">25</div>
+
+                                <div class="p-2 hover:bg-rose-light rounded-lg">26</div>
+
+                                <!-- OCTOBER 27 ANNIVERSARY HIGHLIGHT -->
+                                <div class="relative bg-rose-accent text-white font-bold rounded-xl shadow-md transform scale-105 flex flex-col items-center justify-center p-1.5 cursor-pointer">
+                                    <span>27</span>
+                                    <i class="fas fa-heart"></i>
+                                    <!-- <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='10' height='10'><path fill='%23ffffff' d='M1 1h2v1H1zm4 0h2v1H5zM0 2h4v1H0zm4 0h4v1H4zM0 3h8v1H0zm1 4h6v1H1zm1 1h4v1H2zm1 1h2v1H3z'/></svg>" alt="Pixel Heart" class="w-2.5 h-2.5 mt-0.5"> -->
+                                </div>
+
+                                <div class="p-2 hover:bg-rose-light rounded-lg">28</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">29</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">30</div>
+                                <div class="p-2 hover:bg-rose-light rounded-lg">31</div>
+                                <div class="p-2 text-gray-300">1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POLAROID MEMORY GALLERY -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <div class="text-center mb-6">
+                        <span class="px-3 py-1 bg-rose-light text-rose-accent font-display font-bold text-xs rounded-full uppercase">Memories</span>
+                        <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-rose-dark mt-2">
+                            6 Years of Special Moments
+                        </h2>
+                        <p class="text-rose-deep/70 text-xs font-medium mt-1">Click any photo frame to enlarge</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                        
+                        <!-- Photo 1 -->
+                        <div onclick="openPhotoModal('Where It All Began', 'images/1.jpg', 'October 27, 2021 – First Anniversary natin, kung ano ano ginawa HAHHAHAHA')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/1.jpg" alt="Memory 1" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2021</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Oct 27, 2021</span> -->
+                            </div>
+                        </div>
+
+                        <!-- Photo 2 -->
+                        <div onclick="openPhotoModal('Battle of the Band', 'images/2.jpg', 'Event sa school, nanood tayo. Hehe')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/2.jpg" alt="Memory 2" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2022</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Endless Memories</span> -->
+                            </div>
+                        </div>
+
+                        <!-- Photo 3 -->
+                        <div onclick="openPhotoModal('Date sa Muzon', 'images/3.jpg', 'Kumain tayo here ng chicken burger. Sarap. Tara ulit.')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 sm:col-span-2 lg:col-span-1 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/3.jpg" alt="Memory 3" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2023</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Oct 27, 2026</span> -->
+                            </div>
+                        </div>
+
+                        <!-- Photo 4 -->
+                        <div onclick="openPhotoModal('2024', 'images/4.jpg', 'Picture natin nung may Iphone na ako HAHAHAHAHAH. After magpicture, gumala na')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 sm:col-span-2 lg:col-span-1 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/4.jpg" alt="Memory 3" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2024</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Oct 27, 2026</span> -->
+                            </div>
+                        </div>
+                        <!-- Photo 5 -->
+                        <div onclick="openPhotoModal('La Thalia', 'images/5.jpg', 'Cutieee, pauwi na us here galing outing with our friends')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 sm:col-span-2 lg:col-span-1 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/5.jpg" alt="Memory 3" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2025</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Oct 27, 2026</span> -->
+                            </div>
+                        </div>
+                        <!-- Photo 6 -->
+                        <div onclick="openPhotoModal('Cafe', 'images/6.jpg', 'Cafe date with ate na third wheel pero galante kasi libre us HAHAHAHAHAH.')" 
+                             class="polaroid-frame bg-white p-4 rounded-2xl border border-gray-200 sm:col-span-2 lg:col-span-1 cursor-pointer">
+                            <div class="aspect-square rounded-xl overflow-hidden mb-3 bg-rose-light">
+                                <img src="images/6.jpg" alt="Memory 3" class="w-full h-full object-cover">
+                            </div>
+                            <div class="text-center">
+                                <span class="font-display text-base font-bold text-rose-dark block">2026</span>
+                                <!-- <span class="text-xs text-rose-accent font-bold">Oct 27, 2026</span> -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                
+
+                <!-- INTERACTIVE LOVE REASONS CARDS -->
+                <!-- <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <div class="text-center mb-6">
+                        <span class="px-3 py-1 bg-rose-light text-rose-accent font-display font-bold text-xs rounded-full uppercase">Why You Are Special</span>
+                        <h2 class="text-2xl sm:text-3xl font-display font-extrabold text-rose-dark mt-1">
+                            Reasons Why I Love You
+                        </h2>
+                        <p class="text-xs text-rose-deep/70 font-medium">Click a card below to read a note</p>
+                    </div>
+
+                    Category Buttons
+                    <div class="flex flex-wrap justify-center gap-2.5 mb-6">
+                        <button onclick="showLoveNote('kindness')" class="px-4 py-2 rounded-2xl bg-white hover:bg-rose-accent hover:text-white border border-rose-soft font-display font-bold text-xs text-rose-dark shadow-sm transition flex items-center gap-2">
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' width='12' height='12'><path fill='%23e63946' d='M1 1h2v1H1zm4 0h2v1H5zM0 2h4v1H0zm4 0h4v1H4zM0 3h8v1H0zm1 4h6v1H1zm1 1h4v1H2zm1 1h2v1H3z'/></svg>" alt="Pixel Heart" class="w-3 h-3">
+                            <span>Your Kindness</span>
+                        </button>
+                        <button onclick="showLoveNote('laughter')" class="px-4 py-2 rounded-2xl bg-white hover:bg-rose-accent hover:text-white border border-rose-soft font-display font-bold text-xs text-rose-dark shadow-sm transition flex items-center gap-2">
+                            <i class="fas fa-smile text-rose-accent"></i>
+                            <span>Our Laughter</span>
+                        </button>
+                        <button onclick="showLoveNote('support')" class="px-4 py-2 rounded-2xl bg-white hover:bg-rose-accent hover:text-white border border-rose-soft font-display font-bold text-xs text-rose-dark shadow-sm transition flex items-center gap-2">
+                            <i class="fas fa-hand-holding-heart text-rose-accent"></i>
+                            <span>Always There</span>
+                        </button>
+                        <button onclick="showLoveNote('future')" class="px-4 py-2 rounded-2xl bg-white hover:bg-rose-accent hover:text-white border border-rose-soft font-display font-bold text-xs text-rose-dark shadow-sm transition flex items-center gap-2">
+                            <i class="fas fa-infinity text-rose-accent"></i>
+                            <span>Our Future</span>
+                        </button>
+                    </div>
+
+                    Output Box
+                    <div id="noteOutputDisplay" class="bg-rose-light/70 p-6 rounded-2xl border border-rose-soft text-center min-h-[90px] flex items-center justify-center transition-all duration-300">
+                        <p class="font-display text-base text-rose-dark font-bold">
+                            Click any note category above to reveal a special message!
+                        </p>
+                    </div>
+                </div> -->
+
+                <!-- LOVE LETTER CARD -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+                    <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-3xl border border-rose-soft shadow-inner">
+                        <div class="flex items-center justify-between border-b border-rose-light pb-4 mb-4">
+                            <div>
+                                <span class="text-xs font-display font-bold text-rose-accent uppercase">6th Anniversary Letter</span>
+                                <h2 class="text-2xl font-display font-extrabold text-rose-dark">To My Favorite Person</h2>
+                            </div>
+                            <div class="bg-rose-light p-3 rounded-2xl text-rose-accent text-xl">
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 font-sans text-rose-dark leading-relaxed text-sm sm:text-base">
+                            <p>
+                                Hi Mahal kooooo. Happy 6th Anniversary! I LOVE YOUUUUUUUUUUUU <i class="fas fa-heart"></i>. Galing natin. HAHAHHAHAHA. Naka anim na taon na nga naman e. Paabutin pa natin ito hanggang 999 years. Hehe.
+                            </p>
+                            <p>Mahal koooo. I miss you so much. Date us pag uwi ko haaa. Saan ga masarap kumain? Gusto ko makainan natin lahat ng masasarap dyan sa atin HAHAHAHAH. Gawin natin iyong goal habang here pa ikaw sa Philippines. Kaya ako tumataba e. tsk tsk. Love mo pa rin ba ako kahit batsoy na me? Pag hindi, wag ka na. HAHHAHAHA. </p>
+                            <p>
+                            Mahaaal. Mahal na mahal kita palagi. Always remember that. Alam ko naman na alam mo na. Still, I always want to tell you how much I love you. Can't wait to see you, hug you, kiss you, and do things na pang atin lang dalawa. HAHAHAHA
+                            </p>
+                            <p>
+                            Galingan mo palagi sa work mo at palaging mag-iingat sa araw araw. Hopefully ay matupad mo next year ang trabahong inaasam mo. Malulungkot ako syempre kasi malalayo ka sa akin. Pero kakayanin para sa future natin. Tiwala lang kay Lord and always pray kasi Sya yung nakakaalam ng perfect timing. 
+                            </p>
+                            <p>Hanggang dito na lang po muna mahal kooooo. Sana ay magustuhan mo itong ginawa ko para sa'yo.</p>
+                            <p>Mahal na mahal kitaaaaa. See youu. Lalabyonggg. Mwuaaps</p>
+                            <div class="pt-2 border-t border-rose-light text-right">
+                                <p class="font-display text-base font-extrabold text-rose-accent">I love you always,</p>
+                                <p class="text-xs font-semibold text-rose-deep/70">Mahal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REPLAY / LOCK BUTTON -->
+                <div class="text-center pt-2 pb-6">
+                    <button onclick="lockCardAgain()" class="px-6 py-2.5 rounded-full bg-white hover:bg-rose-light text-rose-dark font-display text-xs font-bold shadow border border-rose-soft transition flex items-center gap-2 mx-auto">
+                        <i class="fas fa-lock text-rose-accent"></i>
+                        <span>Lock Anniversary Card</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PHOTO MODAL ENLARGE -->
+    <div id="photoModal" class="fixed inset-0 modal-backdrop z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full border-2 border-rose-soft shadow-2xl relative">
+            <button onclick="closePhotoModal()" class="absolute top-3 right-3 text-gray-400 hover:text-rose-accent text-xl w-8 h-8 rounded-full bg-rose-light flex items-center justify-center">
+                &times;
+            </button>
+            <div class="aspect-square rounded-2xl overflow-hidden mb-4 bg-rose-light">
+                <img id="modalImg" src="" alt="Enlarged Photo" class="w-full h-full object-cover">
+            </div>
+            <h3 id="modalTitle" class="font-display text-xl font-bold text-rose-dark mb-1"></h3>
+            <p id="modalDesc" class="text-xs font-sans text-rose-deep/80 leading-relaxed"></p>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 text-xs font-display font-semibold text-rose-deep/60 bg-white/50 backdrop-blur-sm border-t border-rose-soft/30 z-10">
+        <i class="fas fa-heart"></i>  I LOVE YOU  <i class="fas fa-heart"></i>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const CORRECT_PIN = "1027";
+        let enteredPin = "";
+        let isAudioPlaying = false;
+
+        const passcodeView = document.getElementById("passcodeView");
+        const wrongPasscodeView = document.getElementById("wrongPasscodeView");
+        const giftView = document.getElementById("giftView");
+        const scrapbookView = document.getElementById("scrapbookView");
+        const pinContainer = document.getElementById("pinContainer");
+        const bgAudio = document.getElementById("bgAudio");
+
+        // Canvas Pixelated Heart Background Generator
+        const canvas = document.getElementById("heartCanvas");
+        const ctx = canvas.getContext("2d");
+        let particles = [];
+
+        // Pre-render pixel heart image to offscreen canvas
+        const heartImg = document.createElement("canvas");
+        heartImg.width = 16;
+        heartImg.height = 16;
+        const hCtx = heartImg.getContext("2d");
+        hCtx.fillStyle = "#e63946";
+        const pixelMatrix = [
+            [0,1,1,0,0,1,1,0],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [1,1,1,1,1,1,1,1],
+            [0,1,1,1,1,1,1,0],
+            [0,0,1,1,1,1,0,0],
+            [0,0,0,1,1,0,0,0]
+        ];
+        pixelMatrix.forEach((row, y) => {
+            row.forEach((val, x) => {
+                if (val) hCtx.fillRect(x * 2, y * 2, 2, 2);
+            });
+        });
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 50;
+                this.speed = Math.random() * 1.5 + 0.8;
+                this.scale = Math.random() * 1.2 + 0.8;
+                this.alpha = Math.random() * 0.6 + 0.3;
+                this.oscillation = Math.random() * 0.05;
+                this.step = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.y -= this.speed;
+                this.step += this.oscillation;
+                this.x += Math.sin(this.step) * 0.5;
+                if (this.y < -20) this.reset();
+            }
+            draw() {
+                ctx.globalAlpha = this.alpha;
+                ctx.drawImage(heartImg, this.x, this.y, 16 * this.scale, 16 * this.scale);
+            }
+        }
+
+        for (let i = 0; i < 25; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateHearts() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateHearts);
+        }
+        animateHearts();
+
+        // Keypad logic
+        function pressNum(num) {
+            if (enteredPin.length < 4) {
+                enteredPin += num;
+                updatePinDisplay();
+            }
+        }
+
+        function pressBackspace() {
+            if (enteredPin.length > 0) {
+                enteredPin = enteredPin.slice(0, -1);
+                updatePinDisplay();
+            }
+        }
+
+        function clearPin() {
+            enteredPin = "";
+            updatePinDisplay();
+        }
+
+        function updatePinDisplay() {
+            const dots = pinContainer.children;
+            for (let i = 0; i < 4; i++) {
+                if (i < enteredPin.length) {
+                    dots[i].classList.add("filled");
+                    dots[i].innerText = "•";
+                } else {
+                    dots[i].classList.remove("filled");
+                    dots[i].innerText = "";
+                }
+            }
+        }
+
+        function submitPin() {
+            if (enteredPin === CORRECT_PIN) {
+                passcodeView.classList.add("hidden");
+                wrongPasscodeView.classList.add("hidden");
+                giftView.classList.remove("hidden");
+                triggerConfetti();
+                playAudio();
+            } else {
+                passcodeView.classList.add("hidden");
+                wrongPasscodeView.classList.remove("hidden");
+                clearPin();
+            }
+        }
+
+        function resetToPasscodeView() {
+            wrongPasscodeView.classList.add("hidden");
+            passcodeView.classList.remove("hidden");
+            clearPin();
+        }
+
+        // Gift Reveal Action
+        function openGiftSurprise() {
+            const giftBox = document.getElementById("giftBoxGraphic");
+            giftBox.classList.add("scale-110");
+            triggerConfetti();
+
+            setTimeout(() => {
+                giftView.classList.add("hidden");
+                scrapbookView.classList.remove("hidden");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 500);
+        }
+
+        function lockCardAgain() {
+            scrapbookView.classList.add("hidden");
+            passcodeView.classList.remove("hidden");
+            clearPin();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Love Note Selection
+        const loveNotes = {
+            'kindness': 'Your kindness and gentle nature make every day feel so comfortable and full of love.',
+            'laughter': 'Six years of inside jokes, random laughter, and effortless happiness together.',
+            'support': 'Thank you for always standing by my side, supporting my dreams, and being my rock.',
+            'future': 'Here is to many more years of adventures, growth, and love together!'
+        };
+
+        function showLoveNote(key) {
+            const display = document.getElementById("noteOutputDisplay");
+            display.style.opacity = '0';
+            setTimeout(() => {
+                display.innerHTML = `<p class="font-display text-base text-rose-dark font-bold">${loveNotes[key]}</p>`;
+                display.style.opacity = '1';
+            }, 150);
+        }
+
+        // Photo Modal Enlarge
+        function openPhotoModal(title, src, desc) {
+            document.getElementById("modalTitle").innerText = title;
+            document.getElementById("modalImg").src = src;
+            document.getElementById("modalDesc").innerText = desc;
+            document.getElementById("photoModal").classList.remove("hidden");
+        }
+
+        function closePhotoModal() {
+            document.getElementById("photoModal").classList.add("hidden");
+        }
+
+        // Confetti Generator
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#e63946', '#ffb3c1', '#800f2f', '#ffffff']
+                });
+            }
+        }
+
+        // Background Audio Handling
+        function playAudio() {
+            if (bgAudio) {
+                bgAudio.play().then(() => {
+                    isAudioPlaying = true;
+                    updateMusicUI();
+                }).catch(() => {
+                    isAudioPlaying = false;
+                    updateMusicUI();
+                });
+            }
+        }
+
+        function toggleAudio() {
+            if (!bgAudio) return;
+            if (isAudioPlaying) {
+                bgAudio.pause();
+                isAudioPlaying = false;
+            } else {
+                bgAudio.play();
+                isAudioPlaying = true;
+            }
+            updateMusicUI();
+        }
+
+        function updateMusicUI() {
+            const musicIcon = document.getElementById("musicIcon");
+            const musicText = document.getElementById("musicText");
+            if (isAudioPlaying) {
+                musicIcon.className = "fas fa-heart text-rose-accent animate-pulse";
+                musicText.innerText = "Music Playing";
+            } else {
+                musicIcon.className = "fas fa-music";
+                musicText.innerText = "Play Music";
+            }
+        }
+    </script>
+</body>
+</html>
